@@ -7,19 +7,14 @@ app.secret_key = "1234"
 CORS(app, supports_credentials=True)
 predictions = textclassifier.TextClassifier()
 
+
 @app.route("/predict", methods=['POST'])
 def predict():
     details = request.get_json()
     if 'url' in details:
         url = details['url']
-        model = "log"
-        if 'model' in details:
-            model = details['model']
         try:
-            if model == 'log':
-                flair = predictions.logreg_predict_class(url)
-            else:
-                flair = predictions.lstm_predict_class(url)
+            flair = predictions.logreg_predict_class(url)
             return jsonify(flair)
         except Exception as e:
             print(e)
@@ -37,10 +32,7 @@ def automated_testing():
         flair_predictions = {}
         for line in f.read().decode().split():
             try:
-                if model == "log":
-                    flair_predictions[line] = predictions.logreg_predict_class(line)
-                else:
-                    flair_predictions[line] = predictions.lstm_predict_class(line)
+                flair_predictions[line] = predictions.logreg_predict_class(line)
             except Exception as e:
                 flair_predictions[line] = str(e)
         return jsonify(flair_predictions)
@@ -48,4 +40,4 @@ def automated_testing():
         return "Oops! Incorrect format", 400
 
 if __name__ == "__main__":
-    app.run(host='localhost', port=5000, threaded=False)
+    app.run(host='localhost', port=5000, debug=True)
